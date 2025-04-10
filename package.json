@@ -1,16 +1,16 @@
 {
   "name": "cli-to-electron",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build && electron-builder",
     "build:mac": "vue-tsc &&vite build && electron-builder --mac",
     "build:win": "vue-tsc &&vite build && electron-builder --win",
-    "release:patch": "npx changelogen@latest --patch --push",
-    "release:minor": "npx changelogen@latest --minor --push",
-    "release:major": "npx changelogen@latest --major --push",
+    "release:patch": "npx changelogen@latest --patch --release --push",
+    "release:minor": "npx changelogen@latest --minor --release --push",
+    "release:major": "npx changelogen@latest --major --release --push",
     "preview": "vite preview"
   },
   "dependencies": {
