@@ -23,7 +23,7 @@ export class BinaryService {
   }
 
 
-  async execute(args: string[] = []): Promise<{ stdout: string; stderr: string }> {
+  async execute(args: string[] = [], event?: Electron.IpcMainInvokeEvent): Promise<{ stdout: string; stderr: string }> {
     return new Promise((resolve, reject) => {
       const process = spawn(this.binaryPath, args)
       childProcesses.push(process);
@@ -32,14 +32,30 @@ export class BinaryService {
       
       processManager.addProcess(process)
       process.stdout.on('data', (data) => {
-        stdout += data.toString()
+        const output = data.toString()
+        stdout += output
+        // 实时发送标准输出
+        event?.sender.send('z-cli-output', {
+          type: 'stdout',
+          data: output
+        })
       })
       
       process.stderr.on('data', (data) => {
-        stderr += data.toString()
+        const output = data.toString()
+        stderr += output
+        // 实时发送错误输出
+        event?.sender.send('z-cli-output', {
+          type: 'stderr',
+          data: output
+        })
       })
       
       process.on('close', (code) => {
+        event?.sender.send('z-cli-output', {
+          type: 'stderr',
+          data: `子进程已关闭[${code ?? ''}]\n`
+        })
         if (code === 0) {
           resolve({ stdout, stderr })
         } else {
@@ -48,6 +64,10 @@ export class BinaryService {
       })
       
       process.on('error', (err) => {
+        event?.sender.send('z-cli-output', {
+          type: 'stderr',
+          data: `子进程ERROR[${err.message}]\n`
+        })
         reject(err)
       })
     })

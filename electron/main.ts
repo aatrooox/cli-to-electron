@@ -30,7 +30,7 @@ let win: BrowserWindow | null
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 800,
+    width: 900,
     height: 380,
     center: true,              // 窗口居中显示
     resizable: true,           // 是否可调整大小

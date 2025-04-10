@@ -2,7 +2,7 @@
 import CliOutput from './components/CliOutput.vue'
 import CliCmdBar from './components/CliCmdBar.vue'
 import { cliCmds } from './config.ts'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 const cliOutput = ref('')
 
 const execCmd = async (cmd: any) => {
@@ -12,9 +12,20 @@ const execCmd = async (cmd: any) => {
   args = args.concat(cmd.args)
   console.log(`args`, args)
   cliOutput.value = `正在执行: ${args}`
-  const res = await window.ipcRenderer.invoke('z-cli', args)
-  cliOutput.value = res.output || res.error
+  await window.ipcRenderer.invoke('z-cli', args)
 }
+
+onMounted(() => {
+  window.ipcRenderer.on('z-cli-output', (_, data) => {
+    if (data.type === 'stdout') {
+      // 处理标准输出
+      cliOutput.value += data.data
+    } else if (data.type === 'stderr') {
+      // 处理错误输出
+      cliOutput.value += data.data
+    }
+  })
+})
 </script>
 
 <template>

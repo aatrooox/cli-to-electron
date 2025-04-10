@@ -14,10 +14,15 @@ export const processManager = {
     }
   },
 
-  killAllProcesses(): void {
-    console.log(`清除子进程`, )
+  killAllProcesses(event?: Electron.IpcMainEvent): void {
+    console.log(`清除子进程[${processes.length}]`, )
     processes.forEach(process => {
       if (!process.killed && process.pid) {
+        console.log(`kill process ${process.pid}`);
+        event?.sender.send('z-cli-output', {
+          type: 'stderr',
+          data: `kill process ${process.pid}\n`
+        })
         process.kill();
       }
     });

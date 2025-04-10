@@ -83,6 +83,10 @@ const generateCommand = () => {
   
   emit('command', output.value)
 }
+
+const killChildProcess = () => {
+  window.ipcRenderer.send('kill-all-processes')
+}
 </script>
 
 <template>
@@ -112,6 +116,9 @@ const generateCommand = () => {
       <button @click="getDirPath" v-if="selectedArg?.type === 'dir'">获取目录路径</button>
       <button @click="generateCommand" :disabled="!isValid">
         执行
+      </button>
+      <button @click="killChildProcess" :disabled="!isValid">
+        kill
       </button>
     </div>
 

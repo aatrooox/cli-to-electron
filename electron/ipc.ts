@@ -1,24 +1,20 @@
 import { ipcMain } from 'electron'
 import { BinaryService } from './cli'
+import { processManager } from './processManager'
 const binaryName = process.platform === 'win32' ? 'z-cli' : 'z-cli'
 const binaryService = new BinaryService(binaryName)
 
-ipcMain.handle('z-cli', async (_, args: string[]) => {
-  console.log(`args`, args)
+ipcMain.handle('z-cli', async (event, args: string[]) => {
   try {
-    const result = await binaryService.execute(args)
-
-    return {
-      success: result.stderr === '', // 没有 stderr 表示成功
-      output: result.stdout,
-      error: result.stderr
-    }
+    await binaryService.execute(args, event)
   } catch (error: any) {
-    return {
-      success: false,
-      output: '',
-      error: error.message
-    }
-    // throw new Error(`执行失败111: ${error.message}`)
+    event.sender.send('z-cli-output', {
+      type: 'stderr',
+      data: `执行失败: ${error.message}\n`
+    })
   }
+})
+
+ipcMain.on('kill-all-processes', (event) => {
+  processManager.killAllProcesses(event);
 })
